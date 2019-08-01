@@ -2,7 +2,7 @@ package test;
 
 
 import test.cards.*;
-import test.effects.Effect;
+import test.effects.*;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -62,13 +62,21 @@ public class Game
         t.game = this;
         t.id = cardId++;
         player[1].hands.cards.add(t);
+        t = new RobeOfFireRat();
+        t.place = 2;
+        t.controller = player[1];
+        t.game = this;
+        t.id = cardId++;
+        player[1].hands.cards.add(t);
         t = new VisionaryTuning();
         t.place = 5;
         t.controller = player[1];
         t.game = this;
         t.id = cardId++;
+
         player[1].graveyard.cards.add(t);
-        toBattleField(player[0],new Gedama());
+        //toBattleField(player[0],new Gedama());
+        toBattleField(player[1],new Forest());
         toBattleField(player[1],new Forest());
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
@@ -212,6 +220,11 @@ public class Game
         }
         if(!p.graveyard.cards.isEmpty())
             useACard(p,p.graveyard.cards.get(0));
+        if(!battlefield.cards.get(7).activeList.isEmpty())
+        {
+            //battlefield.cards.get(7).activeList.get(0).effect(battlefield.cards.get(6));
+            activeNonmanaAbility(p,battlefield.cards.get(7).activeList.get(0));
+        }
     }
     public void endPhase(Player p)
     {
@@ -1135,6 +1148,51 @@ public class Game
         c.targetClear();
         return false;//TODO: 阻止性效应
     }
+    public boolean activeNonmanaAbility(Player p,  NonmanaActiveAbility c)//起动式异能与用卡基本一致
+    {
+        if (!c.targetCheck())
+        {
+            c.targetClear();
+            return false;
+        }
+        //reveal
+        //非法术力的额外费用
+        if(!c.nonManaActiveCostList.isEmpty())
+        {
+            for(int i = 0; i < c.nonManaActiveCostList.size();++i)//由于有动态变化的可能性，不建议提前确定size
+            {
+                Effect e = c.nonManaAdditionCostList.get(i);
+                if(!e.effectAvailableCheck())//支付不起
+                {
+                    c.targetClear();
+                    c.nonManaAdditionCostList.clear();
+                    return false;
+                }
+                //c.nonManaAdditionCostList.remove(0);
+            }
+        }
+
+        String mc = c.activeManacost;
+        //TODO:增减
+
+        if(startGetManaSource(p,mc))
+        {
+            //支付额外费用
+            while(!c.nonManaAdditionCostList.isEmpty())
+            {
+                c.nonManaAdditionCostList.get(0).effect(c);
+                c.nonManaAdditionCostList.remove(0);
+            }
+            //removeCardFrom(p,c);
+            c.place = 3;
+            stack.cards.add(c);
+            stackResolve();
+            return true;
+        }
+        //不成功需要回溯
+        c.targetClear();
+        return false;//TODO: 阻止性效应
+    }
     public void moveToResolvedPlace(Cards c)
     {
         removeCardFrom(c.controller,c);
@@ -1159,7 +1217,7 @@ public class Game
             if(c instanceof Effect)
             {
                 //有效性检查交给effect自己
-                ((Effect) c).effect(c);
+                ((Effect) c).resolved();
                 removeCardFrom(((Effect) c).controller,c);
                 //生效
             }

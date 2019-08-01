@@ -37,8 +37,8 @@ public class Cards
     public String protectFrom = "";
     public String hexProofFrom = "";
 
-    public String equipCost;
-    public Cards attachedCard;
+    //public String equipCost;
+    public Cards attachedCard = null;
 
 
     public boolean summonSickness = false;
@@ -78,6 +78,7 @@ public class Cards
     //咒语或异能的目标，例如战争伤亡就有五类目标
     public ArrayList<Cards> secondTargetList = new ArrayList<>();
     public ArrayList<Cards> thirdTargetList = new ArrayList<>();
+    public ArrayList<NonmanaActiveAbility> activeList = new ArrayList<>();
 
     public boolean nonManaAdditionCostCheck(Cards c){return false;}
     //由于太复杂了，暂且假定同种类型额外费用最多存在一种
