@@ -11,8 +11,8 @@ public class Chen extends Cards
         manacost = "RG";
         convertManaCost = 2;
         m2c();
-        oriPower = power = 1;
-        oraToughness = toughness = 1;
+        oriPower = power = 4;
+        oraToughness = toughness = 4;
         blockLimit = 1;
 
         abilityChangingList.add(new ChenAbilityChanging());

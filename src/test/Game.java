@@ -82,6 +82,9 @@ public class Game
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
+        toBattleField(player[1],new Mountain());
+        toBattleField(player[1],new Mountain());
+        toBattleField(player[1],new Mountain());
 
         stateUpdate();
         takeTurn(player[1]);
@@ -218,12 +221,13 @@ public class Game
                 size--;
             }
         }
-        if(!p.graveyard.cards.isEmpty())
-            useACard(p,p.graveyard.cards.get(0));
-        if(!battlefield.cards.get(7).activeList.isEmpty())
+        //if(!p.graveyard.cards.isEmpty())
+        //    useACard(p,p.graveyard.cards.get(0));
+
+        if(battlefield.cards.size() > 10 && !battlefield.cards.get(10).activeList.isEmpty())
         {
-            //battlefield.cards.get(7).activeList.get(0).effect(battlefield.cards.get(6));
-            activeNonmanaAbility(p,battlefield.cards.get(7).activeList.get(0));
+            activeNonmanaAbility(p,battlefield.cards.get(10).activeList.get(0));
+            activeNonmanaAbility(p,battlefield.cards.get(10).activeList.get(1));
         }
     }
     public void endPhase(Player p)
@@ -277,6 +281,7 @@ public class Game
             c.blockingList.clear();
             //attackable和blockable不用在此处调整
         });
+        return;
     }
     public ArrayList<Cards> attackDeclarePhase(Player p)
     {
@@ -605,6 +610,7 @@ public class Game
             temp.damageToken = c.damageToken;
             temp.tapped = c.tapped;
             temp.summonSickness = c.summonSickness;
+            temp.attachedCard = c.attachedCard;
             //不再清空各list
             temp.copyEffectList = c.copyEffectList;
             temp.withEntersTheBattleFieldList = c.withEntersTheBattleFieldList;
@@ -712,8 +718,6 @@ public class Game
         if(battlefield.cards.size() != size)
             stateUpdate();
     }
-
-
     public void deathCheck()
     {
         int size = battlefield.cards.size();
@@ -744,10 +748,63 @@ public class Game
     public boolean destroy(Cards source,Cards target)
     {
         //替代式，消灭失败返回false
-
         //重生时要将其移出战斗
+        ArrayList<Cards> responseList = findEverywhereArrayList(source.controller,target,"withLeavesTheBattleFieldCheck");
+        while(!responseList.isEmpty())
+        {
+            Cards t = responseList.get(0);
+            t.withLeavesTheBattleField(target);
+            responseList.remove(0);
+        }
+        while(!target.withLeavesTheBattleFieldList.isEmpty())
+        {
+            target.withLeavesTheBattleFieldList.get(0).effect(target);
+            target.withLeavesTheBattleFieldList.remove(0);
+        }
+        try{
+            Cards temp = target.getClass().newInstance();//应该这么写，追溯的时候去找target不找temp
+            temp.place = 5;
+            target.controller.graveyard.cards.add(temp);
+        }
+        catch (InstantiationException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
+        if(target.isAttacking)
+        {
+            target.blockingList.forEach(c ->
+                    c.attackingList.remove(target));
+        }
+        if(target.isBlocking)
+        {
+            target.attackingList.forEach(c ->
+                    c.blockingList.remove(target));
+        }//将其移出战斗
+        removeCardFrom(target.controller,target);
+        //触发式
+        return true;
+    }
+    public boolean sacrificeTargetPermanent(Object source, Cards target)
+    {
+        ArrayList<Cards> responseList = findEverywhereArrayList(target.controller,target,"withLeavesTheBattleFieldCheck");
+        while(!responseList.isEmpty())
+        {
+            Cards t = responseList.get(0);
+            t.withLeavesTheBattleField(target);
+            responseList.remove(0);
+        }
+        while(!target.withLeavesTheBattleFieldList.isEmpty())
+        {
+            target.withLeavesTheBattleFieldList.get(0).effect(target);
+            target.withLeavesTheBattleFieldList.remove(0);
+        }
         try{
             Cards temp = target.getClass().newInstance();
+            temp.place = 5;
             target.controller.graveyard.cards.add(temp);
         }
         catch (InstantiationException e)
@@ -780,8 +837,6 @@ public class Game
             c.damagedByDeathTouch = false;
         });
     }
-
-
 
     public ArrayList<Cards> findEverywhereArrayList(Player P,Cards oriC, String s)//TODO: 将其与后续结合
         {
@@ -860,9 +915,6 @@ public class Game
         }
         return responseCardsTreeSet;
     }
-
-
-
 
     public boolean startGetManaSource(Player p, String manacost)
     {
@@ -1053,7 +1105,6 @@ public class Game
         }
 
     }
-
     private boolean useCardPlaceCheck(Player p, Cards c)
     {
         boolean res = c.place == 2 && p == c.controller;
@@ -1071,7 +1122,6 @@ public class Game
         }
         return res;
     }
-
     public boolean castACard(Player p, Cards c)
     {
         if (!c.targetCheck())
@@ -1161,11 +1211,11 @@ public class Game
         {
             for(int i = 0; i < c.nonManaActiveCostList.size();++i)//由于有动态变化的可能性，不建议提前确定size
             {
-                Effect e = c.nonManaAdditionCostList.get(i);
+                Effect e = c.nonManaActiveCostList.get(i);
                 if(!e.effectAvailableCheck())//支付不起
                 {
                     c.targetClear();
-                    c.nonManaAdditionCostList.clear();
+                    c.nonManaActiveCostList.clear();
                     return false;
                 }
                 //c.nonManaAdditionCostList.remove(0);
@@ -1178,10 +1228,10 @@ public class Game
         if(startGetManaSource(p,mc))
         {
             //支付额外费用
-            while(!c.nonManaAdditionCostList.isEmpty())
+            while(!c.nonManaActiveCostList.isEmpty())
             {
-                c.nonManaAdditionCostList.get(0).effect(c);
-                c.nonManaAdditionCostList.remove(0);
+                c.nonManaActiveCostList.get(0).effect(c);
+                c.nonManaActiveCostList.remove(0);
             }
             //removeCardFrom(p,c);
             c.place = 3;
@@ -1270,6 +1320,7 @@ public class Game
                 return false;
             }
         }
+        stateUpdate();
         return true;
     }
 
@@ -1344,6 +1395,8 @@ public class Game
         removeCardFrom(p,c);
         //触发式
     }
+
+
 
 
     public int playerChooseFromTwoOptions(Player p, Object op1,Object op2)

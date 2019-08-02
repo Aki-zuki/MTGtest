@@ -29,10 +29,17 @@ public class Equip extends NonmanaActiveAbility
     {
         if(!targetDetect(c)) return;
         Cards ori = this.source.attachedCard;
-        if(ori != null)
+        if(ori != null )
         {
-            if(ori.abilityChangingList.contains(equipEffect))
-                ori.abilityChangingList.remove(equipEffect);
+            for(int i = 0; i < ori.abilityChangingList.size();++i)
+            {
+                Effect e = ori.abilityChangingList.get(i);
+                if(e.eid == equipEffect.eid)
+                {
+                    ori.abilityChangingList.remove(equipEffect);
+                    break;
+                }
+            }
         }
         this.source.attachedCard = c;
         c.abilityChangingList.add(equipEffect);

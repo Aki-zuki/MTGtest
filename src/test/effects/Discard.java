@@ -9,6 +9,8 @@ public class Discard extends Effect
     public Discard(Cards s)
     {
         source = s;
+        eid = effectID++;
+
     }
     public boolean effectAvailableCheck()
     {

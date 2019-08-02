@@ -1,7 +1,7 @@
 package test.cards;
 
 import test.Cards;
-import test.effects.DealsDamageToCreature;
+import test.effects.DealsDamageToTargetCreature;
 import test.effects.Discard;
 import test.effects.TapTargetCreature;
 import test.effects.TargetCreature;
@@ -56,6 +56,6 @@ public class VisionaryTuning extends Cards
     public void resolved()
     {
         new TapTargetCreature(this).effect(firstTargetList.get(0));
-        new DealsDamageToCreature(this,2).effect(secondTargetList.get(0));
+        new DealsDamageToTargetCreature(this,2).effect(secondTargetList.get(0));
     }
 }

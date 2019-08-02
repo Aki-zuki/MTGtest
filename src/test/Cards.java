@@ -92,13 +92,16 @@ public class Cards
     public boolean withEntersTheBattleFieldCheck(Cards c){return false;}
     public void withEntersTheBattleField(Cards c){}
     public ArrayList<Effect> withEntersTheBattleFieldList = new ArrayList<>();
-
-    public boolean insEntersTheBattleField = false;
-    //public boolean hasEntersTheBattleField = false;
     public boolean hasEntersTheBattleFieldCheck(Cards c)
     {
         return false;
     }
+    //
+    //
+    public boolean withLeavesTheBattleFieldCheck(Cards c){return false;}
+    public void withLeavesTheBattleField(Cards c){}
+    public ArrayList<Effect> withLeavesTheBattleFieldList = new ArrayList<>();//与离场同时发生的事情，包括卸装，……直到~离开战场的效应
+
 
 //Continuous Effect TODO:把with改成check
     public boolean withCopyEffect(Cards c){ return false;}//this是否会使c产生复制效应
@@ -155,6 +158,8 @@ public class Cards
             case "insDrawACard": return insDrawACard;
             case "withEntersTheBattleField" :return withEntersTheBattleFieldCheck(oriC);
             case "hasEntersTheBattleField" :return hasEntersTheBattleFieldCheck(oriC);
+            case "withLeavesTheBattleFieldCheck" : return withLeavesTheBattleFieldCheck(oriC);
+
             case "useCardPlaceCheckAllowCheck" : return useCardPlaceCheckAllowCheck(oriC);
             case "useCardPlaceCheckForbiddenCheck" : return useCardPlaceCheckForbiddenCheck(oriC);
             case "nonManaAdditionCostCheck" : return nonManaAdditionCostCheck(oriC);

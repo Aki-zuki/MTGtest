@@ -8,6 +8,7 @@ public class RobeOfFireRatEquipEffect extends Effect
     {
         c.toughness += 3;
         c.hexProofFrom += "Red";
+
         //TODO:这两个应该分开写
     }
 }
