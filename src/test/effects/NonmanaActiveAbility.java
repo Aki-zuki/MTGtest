@@ -8,8 +8,7 @@ public class NonmanaActiveAbility extends Effect
     public NonmanaActiveAbility(){}
     public NonmanaActiveAbility(Cards s)
     {
-        source = s;
-        controller = s.controller;
+        super(s);
     }
     public boolean needTap = false;
     public String activeManacost;

@@ -56,13 +56,9 @@ public class Game
         {
             player[i].createLibrary();
         }
-        Cards t = new Chen();
-        t.place = 2;
-        t.controller = player[1];
-        t.game = this;
-        t.id = cardId++;
-        player[1].hands.cards.add(t);
-        t = new RobeOfFireRat();
+
+        //Cards t = new RobeOfFireRat();
+        Cards t = new NightBug();
         t.place = 2;
         t.controller = player[1];
         t.game = this;
@@ -73,13 +69,18 @@ public class Game
         t.controller = player[1];
         t.game = this;
         t.id = cardId++;
-
         player[1].graveyard.cards.add(t);
-        //toBattleField(player[0],new Gedama());
+        t = new Chen();
+        t.place = 2;
+        t.controller = player[1];
+        t.game = this;
+        t.id = cardId++;
+        player[1].hands.cards.add(t);
+
+        toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Forest());
         toBattleField(player[1],new Forest());
-        toBattleField(player[1],new Mountain());
-        toBattleField(player[1],new Mountain());
+        toBattleField(player[1],new Forest());
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
@@ -96,56 +97,12 @@ public class Game
             takeTurn(player[1]);
             stateUpdate();
         }*/
-        System.out.println("www");
+        System.out.println(battlefield.cards.size());
 
         System.out.println("www");
 
         System.out.println("www");
         /*
-        for(int i = 0; i < 3;++i)
-        {
-            t = new Gedama();
-            t.place = 4;
-            t.controller = player[1];
-            t.game = this;
-            battlefield.cards.add(t);
-        }
-        t = new VillageTeacher();
-        t.place = 4;
-        t.controller = player[1];
-        t.game = this;
-        battlefield.cards.add(t);
-        t = new YuyukoSaigyouji();
-        t.place = 4;
-        t.controller = player[0];
-        t.game = this;
-        battlefield.cards.add(t);
-
-        battlePhase(player[0]);
-        System.out.println("www");
-        */
-
-        /*Cards c1 = new Island();
-        c1.place = 2;
-        c1.controller = player[1];
-        c1.game = this;
-        player[1].hands.cards.add(c1);
-        useACard(player[1],c1);
-
-        c1 = new VillageTeacher();
-        c1.place = 2;
-        c1.controller = player[1];
-        c1.game = this;
-
-
-        player[1].hands.cards.add(c1);
-        useACard(player[1],c1);
-        stackResolve();*/
-
-        /*
-        System.out.println(startGetManaSource(player[1],"U{B/G}"));
-        player[1].manapool = "UBUR";
-        System.out.println(player[1].payByManapool("2U")+" "+player[1].manapool);
         */
     }
     void toBattleField(Player p,Cards t)//测试用函数
@@ -175,6 +132,7 @@ public class Game
         //响应
         endPhase(p);
         //响应
+        destroy(nullSource,battlefield.cards.get(9));
         stateUpdate();
         endingTurn(p);//状态检查
     }
@@ -224,10 +182,10 @@ public class Game
         //if(!p.graveyard.cards.isEmpty())
         //    useACard(p,p.graveyard.cards.get(0));
 
-        if(battlefield.cards.size() > 10 && !battlefield.cards.get(10).activeList.isEmpty())
+        if(battlefield.cards.size() > 10 && !battlefield.cards.get(9).activeList.isEmpty())
         {
-            activeNonmanaAbility(p,battlefield.cards.get(10).activeList.get(0));
-            activeNonmanaAbility(p,battlefield.cards.get(10).activeList.get(1));
+            activeNonmanaAbility(p,battlefield.cards.get(9).activeList.get(0));
+            //activeNonmanaAbility(p,battlefield.cards.get(9).activeList.get(1));
         }
     }
     public void endPhase(Player p)
@@ -598,7 +556,7 @@ public class Game
     public Cards resetToBasicCard(Cards c)
     {
         Cards temp;
-
+/*
         try{
             temp = c.getClass().newInstance();
             temp.game = c.game;
@@ -620,15 +578,6 @@ public class Game
             temp.colorChangingList = c.colorChangingList;
             temp.abilityChangingList = c.abilityChangingList;
             return temp;
-            /*
-            name = temp.name;
-            type = temp.type;
-            color =temp.color;
-            FirstStrike = temp.FirstStrike;
-            DoubleStrike = temp.DoubleStrike;
-            //...TODO:剩下的同理
-            */
-
         }
         catch (InstantiationException e)
         {
@@ -639,6 +588,21 @@ public class Game
             e.printStackTrace();
         }
         System.out.println("重置错误");
+*/
+        try{
+            temp = c.getClass().newInstance();
+            c.power = temp.power;
+            c.toughness = temp.toughness;
+            return c;
+        }
+        catch (InstantiationException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IllegalAccessException e)
+        {
+            e.printStackTrace();
+        }
         return c;
     }
     public void stateUpdate()
@@ -1200,6 +1164,10 @@ public class Game
     }
     public boolean activeNonmanaAbility(Player p,  NonmanaActiveAbility c)//起动式异能与用卡基本一致
     {
+        if(c.needTap && (c.tapped || (c.source.type.contains("Creature") && !c.source.Haste && c.source.summonSickness)))
+        {
+            return false;
+        }
         if (!c.targetCheck())
         {
             c.targetClear();
@@ -1228,6 +1196,10 @@ public class Game
         if(startGetManaSource(p,mc))
         {
             //支付额外费用
+            if(c.needTap && !c.source.tapped)
+            {
+                c.source.tapped = true;
+            }
             while(!c.nonManaActiveCostList.isEmpty())
             {
                 c.nonManaActiveCostList.get(0).effect(c);
@@ -1324,6 +1296,39 @@ public class Game
         return true;
     }
 
+    public void createToken(Player p,Cards c)
+    {
+        //替代式和阻碍式
+        c.controller = p;
+        c.game = this;
+        c.id = cardId++;
+        ArrayList<Cards> responseCardsArrayList = findEverywhereArrayList(c.controller,c,"withEntersTheBattleField");
+        while(!responseCardsArrayList.isEmpty())
+        {
+            responseCardsArrayList.get(0).withEntersTheBattleField(c);
+            responseCardsArrayList.remove(0);
+        }
+        c.withEntersTheBattleFieldList.forEach(e->
+                e.effect(c));
+
+        //removeCardFrom(c.controller,c);
+        c.place = 4;
+        c.summonSickness = true;
+        battlefield.cards.add(c);
+        responseCardsArrayList = findEverywhereArrayList(c.controller,c,"hasEntersTheBattleField");
+        if(!responseCardsArrayList.isEmpty())
+        {
+            if(responseCardsArrayList.size() == 1)
+            {
+                responseCardsArrayList.get(0).hasEntersTheBattleField(c);
+            }
+            else
+            {
+                //TODO: 堆叠选择
+            }
+            responseCardsArrayList.clear();
+        }
+    }
     public void drawACard(Player p)
     {
         ArrayList<Cards> responseCardsArrayList = findEverywhereArrayList(p,
@@ -1395,10 +1400,6 @@ public class Game
         removeCardFrom(p,c);
         //触发式
     }
-
-
-
-
     public int playerChooseFromTwoOptions(Player p, Object op1,Object op2)
     {
         //TODO:选啊

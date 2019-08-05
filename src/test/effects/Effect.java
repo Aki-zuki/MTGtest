@@ -15,7 +15,10 @@ public class Effect extends Cards//可以找到操控者
         controller = s.controller;
         eid = effectID++;
     }
-    public Effect(){        eid = effectID++; }
+    public Effect()
+    {
+        //eid = effectID++;
+    }
     public void effect(Cards c) { }
     public boolean effectAvailableCheck()
     {
@@ -51,7 +54,7 @@ public class Effect extends Cards//可以找到操控者
                 }
                 else
                 {
-                    return !(this.source.type.contains(c.hexProofFrom) || this.source.type.contains(c.protectFrom));
+                    return !((!c.hexProofFrom.isEmpty() && this.source.type.contains(c.hexProofFrom)) || (!c.protectFrom.isEmpty() && this.source.type.contains(c.protectFrom)));
                 }
             }
             else//自己操作，只考虑保护
@@ -70,7 +73,7 @@ public class Effect extends Cards//可以找到操控者
                 }
                 else
                 {
-                    return !(this.source.type.contains(c.protectFrom));
+                    return !(!c.protectFrom.isEmpty() && this.source.type.contains(c.protectFrom));
                 }
             }
 

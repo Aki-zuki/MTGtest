@@ -8,8 +8,7 @@ public class Equip extends NonmanaActiveAbility
     //public Equip(){}
     public Equip(Cards s, String equipCost, Effect eE)
     {
-        source = s;
-        controller = s.controller;
+        super(s);
         activeManacost = equipCost;
         equipEffect = eE;
     }
@@ -34,7 +33,8 @@ public class Equip extends NonmanaActiveAbility
             for(int i = 0; i < ori.abilityChangingList.size();++i)
             {
                 Effect e = ori.abilityChangingList.get(i);
-                if(e.eid == equipEffect.eid)
+                //if(e.eid == equipEffect.eid)
+                if(e == equipEffect)
                 {
                     ori.abilityChangingList.remove(equipEffect);
                     break;

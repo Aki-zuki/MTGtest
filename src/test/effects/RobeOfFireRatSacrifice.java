@@ -13,14 +13,14 @@ public class RobeOfFireRatSacrifice extends NonmanaActiveAbility
     {
         nonManaActiveCostList.add(new SacrificeItself(s));
         source = s;
-        controller = s.controller;
+        this.controller = s.controller;
         activeManacost = "1RR";
     }
     //public ArrayList<Effect> nonManaActiveCostList = new ArrayList<Effect>();//假设只有自己会产生其他费用
     public boolean targetDetect(Cards c)
     {
         return (c.place == 4 && c.type.contains("Creature") && !c.Shroud && targetUniqueDetect(c)
-                && ((!c.HexProof) || c.controller == this.controller));
+                && ((!c.HexProof) || c.controller == this.source.controller));
     }
     public boolean targetCheck()
     {

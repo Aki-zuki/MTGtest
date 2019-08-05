@@ -5,12 +5,9 @@ import test.cards.VisionaryTuning;
 
 public class Discard extends Effect
 {
-
     public Discard(Cards s)
     {
-        source = s;
-        eid = effectID++;
-
+        super(s);
     }
     public boolean effectAvailableCheck()
     {

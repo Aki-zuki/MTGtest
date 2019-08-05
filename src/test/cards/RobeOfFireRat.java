@@ -18,8 +18,6 @@ public class RobeOfFireRat extends Cards
         activeList.add(new Equip(this,"2",equipEffect));//TODO:如何对敌
         activeList.add(new RobeOfFireRatSacrifice(this));
 
-
-
     }
     public boolean withLeavesTheBattleFieldCheck(Cards c)
     {
@@ -30,9 +28,9 @@ public class RobeOfFireRat extends Cards
         //不需要借助arrayList，直接拿走
         if(c.id == this.id)
         {
-            if(c.abilityChangingList.contains(equipEffect))
+            if(c.attachedCard.abilityChangingList.contains(equipEffect))
             {
-                c.abilityChangingList.remove(equipEffect);
+                c.attachedCard.abilityChangingList.remove(equipEffect);
             }
         }
         this.attachedCard = null;

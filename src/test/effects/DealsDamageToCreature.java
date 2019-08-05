@@ -7,10 +7,8 @@ public class DealsDamageToCreature extends Effect//与target区别在于不需�
     public int damage = 0;
     public DealsDamageToCreature(Cards s, int d)
     {
-        source = s;
+        super(s);
         damage = d;
-        eid = effectID++;
-
     }
     @Override
     public void effect(Cards c)
