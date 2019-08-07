@@ -33,6 +33,7 @@ public class Cards
     public boolean Shroud = false;
     public boolean Trample = false;
     public boolean Vigilance = false;
+    public boolean Undestruble = false;
 
     public String protectFrom = "";
     public String hexProofFrom = "";
@@ -93,12 +94,15 @@ public class Cards
     public boolean withEntersTheBattleFieldCheck(Cards c){return false;}
     public void withEntersTheBattleField(Cards c){}
     public ArrayList<Effect> withEntersTheBattleFieldList = new ArrayList<>();
+
     public boolean hasEntersTheBattleFieldCheck(Cards c)
     {
         return false;
-    }
+    }//每张牌只给一次函数生效机会，不确定会不会有负面影响
+    public Effect hasEntersTheBattleField(Cards c)
+    {return null;}
     //
-    //
+
     public boolean withLeavesTheBattleFieldCheck(Cards c){return false;}
     public void withLeavesTheBattleField(Cards c){}
     public ArrayList<Effect> withLeavesTheBattleFieldList = new ArrayList<>();//与离场同时发生的事情，包括卸装，……直到~离开战场的效应
@@ -160,12 +164,9 @@ public class Cards
             case "withEntersTheBattleField" :return withEntersTheBattleFieldCheck(oriC);
             case "hasEntersTheBattleField" :return hasEntersTheBattleFieldCheck(oriC);
             case "withLeavesTheBattleFieldCheck" : return withLeavesTheBattleFieldCheck(oriC);
-
             case "useCardPlaceCheckAllowCheck" : return useCardPlaceCheckAllowCheck(oriC);
             case "useCardPlaceCheckForbiddenCheck" : return useCardPlaceCheckForbiddenCheck(oriC);
             case "nonManaAdditionCostCheck" : return nonManaAdditionCostCheck(oriC);
-
-
 
         }
         return false;
@@ -186,7 +187,6 @@ public class Cards
     {
         System.out.println("trick");
     }
-    public void hasEntersTheBattleField(Cards c) { }
     public void hasDeclareAttacking(Cards c){}
     public void hasDeclareBlocking(Cards c) {}
 

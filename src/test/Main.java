@@ -1,5 +1,9 @@
 package test;
 
+import test.cards.Forest;
+import test.cards.Island;
+import test.cards.Mountain;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -23,6 +27,14 @@ public class Main
             max += r.nextInt(10)+1;
         }
         System.out.println(max);*/
+        ArrayList<Cards> a = new ArrayList<>();
+        ArrayList<Cards> b = new ArrayList<>();
+        Cards c = new Forest();
+        a.add(c);
+        b.add(new Mountain());
+        b.add(c);
+        a.add(new Island());
+        a.addAll(b);
         Game g = new Game();
         g.test();
     }

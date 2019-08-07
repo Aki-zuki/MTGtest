@@ -1,6 +1,8 @@
 package test.cards;
 
 import test.*;
+import test.effects.DrawACard;
+import test.effects.Effect;
 
 public class VillageTeacher extends Cards
 {
@@ -22,8 +24,8 @@ public class VillageTeacher extends Cards
     {
         return c == this && this.place == 4;
     }
-    public void hasEntersTheBattleField(Cards c)
+    public Effect hasEntersTheBattleField(Cards c)
     {
-        game.drawACard(this.controller);
+        return new DrawACard(this.controller);
     }
 }

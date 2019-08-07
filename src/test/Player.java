@@ -44,6 +44,14 @@ public class Player extends Cards
         System.out.println(hands.cards.get(0));
     }
 
+    public boolean takePriority()
+    {
+        //TODO:checkWhatToDo
+        //做点什么
+        return true;//代表什么都没做
+    }
+
+
     public Cards chooseOneTargetForEffect( Effect e)
     {
         ArrayList<Cards> targetableCards = new ArrayList<>();
@@ -85,7 +93,11 @@ public class Player extends Cards
     {
         return(h.cards.get(new Random().nextInt(h.cards.size())));//玩家选择
     }
-
+    public ArrayList<Cards> sortCardArray(ArrayList<Cards> al)
+    {
+        //TODO:排序触发顺序
+        return al;
+    }
 
 /*
     public boolean payByManapool(String manacost)

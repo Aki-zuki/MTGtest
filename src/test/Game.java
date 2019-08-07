@@ -16,6 +16,7 @@ public class Game
 {
     int cardId = 0;
     Player[] player = new Player[2];
+    Player activePlayer = player[0];//主动牌手
     public Battlefield battlefield = new Battlefield();
     public Exile exile = new Exile();
     public Stack stack = new Stack();
@@ -119,6 +120,7 @@ public class Game
 
     public void takeTurn(Player p)
     {
+        activePlayer = p;
         untapPhase(p);
         //响应
         unkeepPhase(p);
@@ -134,8 +136,6 @@ public class Game
         //响应
         endPhase(p);
         //响应
-        destroy(nullSource,battlefield.cards.get(9));
-        stateUpdate();
         endingTurn(p);//状态检查
     }
     public void untapPhase(Player p)
@@ -160,6 +160,8 @@ public class Game
     public void unkeepPhase(Player p)
     {
         //响应
+
+        priorityExchange();
     }
     public void drawPhase(Player p)
     {
@@ -555,6 +557,49 @@ public class Game
         deathCheck();
     }
 
+    public void priorityExchange()
+    {
+        boolean p1pass = false;
+        boolean p2pass = false;
+        Player p = activePlayer;
+        Player q = activePlayer == player[0]?player[1]:player[0];
+        while(!p1pass || !p2pass)
+        {
+            p1pass = false;
+            p2pass = false;
+            while(!p1pass)
+            {
+                stateUpdate();
+                p1pass = p.takePriority();
+            }
+            while(!p2pass)
+            {
+                stateUpdate();
+                p2pass = q.takePriority();
+                if(!p2pass) p1pass = false;
+            }
+        }
+
+    }
+    public void addTriggerAbilityToStack(Player p,Cards c,String s)//p代表先做选择的
+    {
+        Player q = p == player[0]?player[1]:player[0];
+        ArrayList<Cards> responseCardsArrayList = findEverywhereArrayList(p, c, s);//TODO:假设player不会对fEAL产生影响fndvryrrylst
+        ArrayList<Cards> pList = new ArrayList<>();
+        ArrayList<Cards> qList = new ArrayList<>();
+        for (Cards d: responseCardsArrayList)
+        {
+            if(d.controller == p) pList.add(d);
+            else if(d.controller == q) qList.add(d);
+            else System.out.println("未知玩家");
+        }
+        pList = p.sortCardArray(pList);
+        qList = q.sortCardArray(qList);
+        for(Cards d:pList)
+        {
+
+        }
+    }
     public Cards resetToBasicCard(Cards c)
     {
         Cards temp;
@@ -716,23 +761,30 @@ public class Game
     public boolean destroy(Cards source,Cards target)
     {
         //替代式，消灭失败返回false
-        if(target.regenerate)
+        if(target.toughness > 0)//如果没有防御力则重生和不灭都无效
         {
-            target.regenerate = false;
-            target.tapped = true;
-            target.isBlocking = false;
-            target.isAttacking = false;
-            target.isBlocked = false;
-            target.damageToken = 0;
-            target.damagedByDeathTouch = false;
-            for (Cards c : battlefield.cards)
+            if(target.Undestruble)
             {
-                if(c.attackingList.contains(target))
-                    c.attackingList.remove(target);
-                if(c.blockingList.contains(target))
-                    c.blockingList.contains(target);
+                return false;
             }
-            return true;
+            if(target.regenerate)
+            {
+                target.regenerate = false;
+                target.tapped = true;
+                target.isBlocking = false;
+                target.isAttacking = false;
+                target.isBlocked = false;
+                target.damageToken = 0;
+                target.damagedByDeathTouch = false;
+                for (Cards c : battlefield.cards)
+                {
+                    if(c.attackingList.contains(target))
+                        c.attackingList.remove(target);
+                    if(c.blockingList.contains(target))
+                        c.blockingList.contains(target);
+                }
+                return false;
+            }
         }
         //重生时要将其移出战斗
         ArrayList<Cards> responseList = findEverywhereArrayList(source.controller,target,"withLeavesTheBattleFieldCheck");
@@ -824,6 +876,14 @@ public class Game
         });
     }
 
+    public ArrayList<Effect>findTriggerAbilityEverywhere(Player P, Cards oriC,String s)
+    {
+        //TODO:改为给出触发式异能
+        ArrayList<Effect> resList = new ArrayList<>();
+
+        return resList;
+    }
+
     public ArrayList<Cards> findEverywhereArrayList(Player P,Cards oriC, String s)//TODO: 将其与后续结合
         {
             ArrayList<Cards> responseCardsArrayList = new ArrayList<>();
@@ -845,14 +905,14 @@ public class Game
                 {
                     if(c.cardBool(P,oriC,s))  responseCardsArrayList.add(c);
                 });
-                p.library.cards.forEach(c ->
-                {
-                    if(c.cardBool(P,oriC,s))  responseCardsArrayList.add(c);
-                });
-                p.hands.cards.forEach(c ->
-                {
-                    if(c.cardBool(P,oriC,s))  responseCardsArrayList.add(c);
-                });
+                // p.library.cards.forEach(c ->
+                //{
+                //    if(c.cardBool(P,oriC,s))  responseCardsArrayList.add(c);
+                //});
+                //p.hands.cards.forEach(c ->
+                //{
+                //    if(c.cardBool(P,oriC,s))  responseCardsArrayList.add(c);
+                //});
             }
             return responseCardsArrayList;
         }
@@ -1313,7 +1373,8 @@ public class Game
                 System.out.println("未知类型");
                 return false;
             }
-            stateUpdate();//咒语结算过程中没有状态检查
+            //咒语结算过程中没有状态检查W
+            priorityExchange();
         }
         return true;
     }
