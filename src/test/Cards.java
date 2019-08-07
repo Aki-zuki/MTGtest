@@ -47,6 +47,7 @@ public class Cards
     public boolean produceManaByManaAbility = false;
     public String manaAbilityGenerate = "";
     public int resolvedPlace = 5;//瞬间法术结算后置于何处，默认为坟墓
+    public boolean regenerate = false;
 
     public boolean attackable = false;
     public boolean blockable = false;

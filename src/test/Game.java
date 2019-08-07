@@ -81,11 +81,13 @@ public class Game
         toBattleField(player[1],new Forest());
         toBattleField(player[1],new Forest());
         toBattleField(player[1],new Forest());
+        toBattleField(player[1],new Mokou(player[1]));
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
         toBattleField(player[1],new Mountain());
+
 
         stateUpdate();
         takeTurn(player[1]);
@@ -182,10 +184,10 @@ public class Game
         //if(!p.graveyard.cards.isEmpty())
         //    useACard(p,p.graveyard.cards.get(0));
 
-        if(battlefield.cards.size() > 10 && !battlefield.cards.get(9).activeList.isEmpty())
+        if(!battlefield.cards.get(4).activeList.isEmpty())
         {
-            activeNonmanaAbility(p,battlefield.cards.get(9).activeList.get(0));
-            //activeNonmanaAbility(p,battlefield.cards.get(9).activeList.get(1));
+            activeNonmanaAbility(p,battlefield.cards.get(4).activeList.get(0));
+            activeNonmanaAbility(p,battlefield.cards.get(4).activeList.get(1));
         }
     }
     public void endPhase(Player p)
@@ -593,6 +595,8 @@ public class Game
             temp = c.getClass().newInstance();
             c.power = temp.power;
             c.toughness = temp.toughness;
+            c.hexProofFrom = temp.hexProofFrom;
+            c.protectFrom = temp.protectFrom;
             return c;
         }
         catch (InstantiationException e)
@@ -712,6 +716,24 @@ public class Game
     public boolean destroy(Cards source,Cards target)
     {
         //替代式，消灭失败返回false
+        if(target.regenerate)
+        {
+            target.regenerate = false;
+            target.tapped = true;
+            target.isBlocking = false;
+            target.isAttacking = false;
+            target.isBlocked = false;
+            target.damageToken = 0;
+            target.damagedByDeathTouch = false;
+            for (Cards c : battlefield.cards)
+            {
+                if(c.attackingList.contains(target))
+                    c.attackingList.remove(target);
+                if(c.blockingList.contains(target))
+                    c.blockingList.contains(target);
+            }
+            return true;
+        }
         //重生时要将其移出战斗
         ArrayList<Cards> responseList = findEverywhereArrayList(source.controller,target,"withLeavesTheBattleFieldCheck");
         while(!responseList.isEmpty())
@@ -1291,8 +1313,8 @@ public class Game
                 System.out.println("未知类型");
                 return false;
             }
+            stateUpdate();//咒语结算过程中没有状态检查
         }
-        stateUpdate();
         return true;
     }
 

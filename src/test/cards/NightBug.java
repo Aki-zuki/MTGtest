@@ -18,7 +18,7 @@ public class NightBug extends Cards
         oriPower = power = 1;
         oraToughness = toughness = 1;
         blockLimit = 1;
-        Haste = true;
+        //Haste = true;
        // abilityChangingList.add()
     }
 
