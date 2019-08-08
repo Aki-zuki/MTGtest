@@ -35,6 +35,7 @@ public class Main
         b.add(c);
         a.add(new Island());
         a.addAll(b);
+        a.remove(c);
         Game g = new Game();
         g.test();
     }

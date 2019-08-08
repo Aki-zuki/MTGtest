@@ -14,6 +14,7 @@ import static jdk.nashorn.internal.objects.NativeMath.min;
 
 public class Game
 {
+
     int cardId = 0;
     Player[] player = new Player[2];
     Player activePlayer = player[0];//主动牌手
@@ -25,7 +26,7 @@ public class Game
     //public ArrayList<Cards> responseCardsArrayList = new ArrayList<>();
     //public TreeSet<Cards> responseCardsTreeSet = new TreeSet<>(
 
-
+    boolean isResoving = false;
     public String biggestColorlessManacost = "9";
 
     public void test()
@@ -127,6 +128,8 @@ public class Game
         //响应
         drawPhase(p);
         //响应
+        System.out.println("www");
+
         mainPhase(p);
         //响应
         stateUpdate();
@@ -160,13 +163,13 @@ public class Game
     public void unkeepPhase(Player p)
     {
         //响应
-
         priorityExchange();
     }
     public void drawPhase(Player p)
     {
         //响应
         //替代
+        priorityExchange();
         drawACard(p);
     }
     public void mainPhase(Player p)
@@ -174,13 +177,15 @@ public class Game
         //响应 触发
         //TODO： 出牌
         //自动情况下，尝试用每一张牌
-        int size = p.hands.cards.size();
+        priorityExchange();
+        int size = p.hands.cards.size()-1;
         for(int i = 0; i < size;++i)
         {
             if(useACard(p,p.hands.cards.get(i)))
             {
                 i--;
                 size--;
+
             }
         }
         //if(!p.graveyard.cards.isEmpty())
@@ -194,6 +199,8 @@ public class Game
     }
     public void endPhase(Player p)
     {
+        priorityExchange();
+
         //响应 触发
     }
     public void endingTurn(Player p)
@@ -579,25 +586,34 @@ public class Game
                 if(!p2pass) p1pass = false;
             }
         }
-
+        if(!isResoving && !stack.cards.isEmpty())
+        {
+            stackResolve();
+        }
     }
     public void addTriggerAbilityToStack(Player p,Cards c,String s)//p代表先做选择的
     {
         Player q = p == player[0]?player[1]:player[0];
-        ArrayList<Cards> responseCardsArrayList = findEverywhereArrayList(p, c, s);//TODO:假设player不会对fEAL产生影响fndvryrrylst
-        ArrayList<Cards> pList = new ArrayList<>();
-        ArrayList<Cards> qList = new ArrayList<>();
-        for (Cards d: responseCardsArrayList)
+        ArrayList<Effect> responseCardsArrayList = findTriggerAbilityEverywhere(p, c, s);//TODO:假设player不会对fEAL产生影响fndvryrrylst
+        ArrayList<Effect> pList = new ArrayList<>();
+        ArrayList<Effect> qList = new ArrayList<>();
+        for (Effect d: responseCardsArrayList)
         {
             if(d.controller == p) pList.add(d);
             else if(d.controller == q) qList.add(d);
             else System.out.println("未知玩家");
         }
-        pList = p.sortCardArray(pList);
-        qList = q.sortCardArray(qList);
-        for(Cards d:pList)
+        pList = p.sortEffectArray(pList);
+        qList = q.sortEffectArray(qList);
+        for(Effect d:pList)
         {
-
+            d.place = 3;
+            stack.cards.add(d);
+        }
+        for(Effect d:qList)
+        {
+            d.place = 3;
+            stack.cards.add(d);
         }
     }
     public Cards resetToBasicCard(Cards c)
@@ -878,9 +894,26 @@ public class Game
 
     public ArrayList<Effect>findTriggerAbilityEverywhere(Player P, Cards oriC,String s)
     {
-        //TODO:改为给出触发式异能
         ArrayList<Effect> resList = new ArrayList<>();
-
+        battlefield.cards.forEach(c ->
+        {
+            if (c.cardBool(P, oriC, s)) resList.add(c.getEffect(P, oriC, s));
+        });
+        exile.cards.forEach(c ->
+        {
+            if (c.cardBool(P, oriC, s)) resList.add(c.getEffect(P, oriC, s));
+        });
+        stack.cards.forEach(c ->
+        {
+            if (c.cardBool(P, oriC, s)) resList.add(c.getEffect(P, oriC, s));
+        });
+        for (Player p : player)
+        {
+            p.graveyard.cards.forEach(c ->
+            {
+                if (c.cardBool(P, oriC, s)) resList.add(c.getEffect(P, oriC, s));
+            });
+        }
         return resList;
     }
 
@@ -1237,7 +1270,7 @@ public class Game
             removeCardFrom(p,c);
             c.place = 3;
             stack.cards.add(c);
-            stackResolve();
+            priorityExchange();
             return true;
         }
         //不成功需要回溯
@@ -1290,7 +1323,7 @@ public class Game
             //removeCardFrom(p,c);
             c.place = 3;
             stack.cards.add(c);
-            stackResolve();
+            //stackResolve();
             return true;
         }
         //不成功需要回溯
@@ -1317,7 +1350,8 @@ public class Game
         while(!stack.cards.isEmpty())
         {
             //响应,双方让过后
-            Cards c = stack.cards.get(0);
+            isResoving = true;
+            Cards c = stack.cards.get(stack.cards.size()-1);
             if(c instanceof Effect)
             {
                 //有效性检查交给effect自己
@@ -1348,20 +1382,7 @@ public class Game
                 c.place = 4;
                 c.summonSickness = true;
                 battlefield.cards.add(c);
-                responseCardsArrayList = findEverywhereArrayList(c.controller,c,"hasEntersTheBattleField");
-                if(!responseCardsArrayList.isEmpty())
-                {
-                    if(responseCardsArrayList.size() == 1)
-                    {
-                        responseCardsArrayList.get(0).hasEntersTheBattleField(c);
-                    }
-                    else
-                    {
-                        //TODO: 堆叠选择
-                    }
-                    responseCardsArrayList.clear();
-                }
-
+                addTriggerAbilityToStack(c.controller,c,"hasEntersTheBattleField");
             }
             else if(c.type.contains("Instant") || c.type.contains("Sorcery"))
             {
@@ -1373,9 +1394,10 @@ public class Game
                 System.out.println("未知类型");
                 return false;
             }
-            //咒语结算过程中没有状态检查W
             priorityExchange();
+            //咒语结算过程中没有状态检查W
         }
+        isResoving = false;
         return true;
     }
 
@@ -1398,19 +1420,7 @@ public class Game
         c.place = 4;
         c.summonSickness = true;
         battlefield.cards.add(c);
-        responseCardsArrayList = findEverywhereArrayList(c.controller,c,"hasEntersTheBattleField");
-        if(!responseCardsArrayList.isEmpty())
-        {
-            if(responseCardsArrayList.size() == 1)
-            {
-                responseCardsArrayList.get(0).hasEntersTheBattleField(c);
-            }
-            else
-            {
-                //TODO: 堆叠选择
-            }
-            responseCardsArrayList.clear();
-        }
+        addTriggerAbilityToStack(c.controller,c,"hasEntersTheBattleField");
     }
     public void drawACard(Player p)
     {
@@ -1433,7 +1443,9 @@ public class Game
         }
         else
         {
+            //System.out.println("wwww");
             p.drawACard();
+            //System.out.println("www");
             findEverywhereArrayList(p,new Cards(), "hasDrawACard");
             if(!responseCardsArrayList.isEmpty())
             {
@@ -1488,7 +1500,4 @@ public class Game
         //TODO:选啊
         return new Random().nextInt(2);
     }
-
-
-
 }

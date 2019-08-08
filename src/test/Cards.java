@@ -107,6 +107,8 @@ public class Cards
     public void withLeavesTheBattleField(Cards c){}
     public ArrayList<Effect> withLeavesTheBattleFieldList = new ArrayList<>();//与离场同时发生的事情，包括卸装，……直到~离开战场的效应
 
+    public boolean hasLeavesTheBattleFieldCheck(Cards c) { return false; }
+    public Effect hasLeavesTheBattleField(Cards c) {return null;}
 
 //Continuous Effect TODO:把with改成check
     public boolean withCopyEffect(Cards c){ return false;}//this是否会使c产生复制效应
@@ -171,6 +173,17 @@ public class Cards
         }
         return false;
     }
+    public Effect getEffect(Player P, Cards oriC, String request)
+    {
+        switch(request)
+        {
+            case "hasEntersTheBattleField": return hasEntersTheBattleField(oriC);
+            case "hasLeavesTheBattleField": return hasLeavesTheBattleField(oriC);
+        }
+        return null;
+    }
+
+
     void  atTheBeginningOfGame()
     {
         System.out.println("A");

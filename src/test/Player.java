@@ -41,13 +41,25 @@ public class Player extends Cards
         library.cards.remove(0);
         c.place = 2;
         hands.cards.add(c);
-        System.out.println(hands.cards.get(0));
+        //System.out.println(hands.cards.get(0));
     }
 
     public boolean takePriority()
     {
         //TODO:checkWhatToDo
         //做点什么
+        if(this.game.player[0] == this)
+        {
+            System.out.println("玩家0"+ this.game.stack.cards +"过");
+        }
+        else
+        {
+            if(!game.stack.cards.isEmpty() && graveyard.cards.get(0).name.contains("Visionary"))
+            {
+                game.useACard(this,graveyard.cards.get(0));
+            }
+            System.out.println("玩家1"+ this.game.stack.cards +"过");
+        }
         return true;//代表什么都没做
     }
 
@@ -93,7 +105,7 @@ public class Player extends Cards
     {
         return(h.cards.get(new Random().nextInt(h.cards.size())));//玩家选择
     }
-    public ArrayList<Cards> sortCardArray(ArrayList<Cards> al)
+    public ArrayList<Effect> sortEffectArray(ArrayList<Effect> al)
     {
         //TODO:排序触发顺序
         return al;
