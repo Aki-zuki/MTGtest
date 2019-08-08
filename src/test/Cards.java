@@ -164,8 +164,9 @@ public class Cards
             case "produceManaByManaAbility": return produceManaByManaAbility;
             case "insDrawACard": return insDrawACard;
             case "withEntersTheBattleField" :return withEntersTheBattleFieldCheck(oriC);
-            case "hasEntersTheBattleField" :return hasEntersTheBattleFieldCheck(oriC);
+            case "hasEntersTheBattleField" :return hasEntersTheBattleFieldCheck(oriC);//注意这两个触发式异能左边都少一个check
             case "withLeavesTheBattleFieldCheck" : return withLeavesTheBattleFieldCheck(oriC);
+            case "hasLeavesTheBattleField": return hasLeavesTheBattleFieldCheck(oriC);
             case "useCardPlaceCheckAllowCheck" : return useCardPlaceCheckAllowCheck(oriC);
             case "useCardPlaceCheckForbiddenCheck" : return useCardPlaceCheckForbiddenCheck(oriC);
             case "nonManaAdditionCostCheck" : return nonManaAdditionCostCheck(oriC);

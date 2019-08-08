@@ -92,7 +92,12 @@ public class Game
 
 
         stateUpdate();
-        takeTurn(player[1]);
+        for(int i = 0 ; i < 4;++i)
+        {
+            takeTurn(player[0]);
+            takeTurn(player[1]);
+        }
+
         /*
         for(int i = 0; i < 3;++i)
         {
@@ -154,6 +159,7 @@ public class Game
                     c.tapped = false;
                     c.hasDealCombatDamage = false;
                     c.summonSickness = false;
+                    c.regenerate = false;
                     //触发式
                 }
             }
@@ -817,6 +823,7 @@ public class Game
         }
         try{
             Cards temp = target.getClass().newInstance();//应该这么写，追溯的时候去找target不找temp
+            temp.id = target.id;
             temp.place = 5;
             target.controller.graveyard.cards.add(temp);
         }
@@ -840,6 +847,7 @@ public class Game
         }//将其移出战斗
         removeCardFrom(target.controller,target);
         //触发式
+        addTriggerAbilityToStack(activePlayer,target,"hasLeavesTheBattleField");
         return true;
     }
     public boolean sacrificeTargetPermanent(Object source, Cards target)

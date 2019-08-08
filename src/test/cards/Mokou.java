@@ -31,10 +31,16 @@ public class Mokou extends Cards
         oraToughness = toughness = 5;
         blockLimit = 1;
 
-
         activeList.add(new MokouRegenerate(this));
         activeList.add(new MokouDamageActive(this));
 
     }
-
+    public boolean hasLeavesTheBattleFieldCheck(Cards c)
+    {
+        return c.id == this.id;
+    }
+    public Effect hasLeavesTheBattleField(Cards c)
+    {
+        return new HouraiDies(c);
+    }
 }

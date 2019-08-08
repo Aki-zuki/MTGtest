@@ -3,6 +3,7 @@ package test;
 import test.effects.Effect;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class Player extends Cards
@@ -10,7 +11,7 @@ public class Player extends Cards
 {
     public int life = 20;
     Deck deck = new Deck();
-    Library library;
+    public Library library;
     public Hands hands = new Hands();
     Graveyard graveyard = new Graveyard();
     String manapool = "";
@@ -28,6 +29,12 @@ public class Player extends Cards
             c.place = 1;
         });
     }
+    public void shuffleLibrary()
+    {
+        //可能有阻止式异能
+        Collections.shuffle(library.cards);
+    }
+
     public void drawACard()//replacement prevents this function
     {
         if(library.cards.isEmpty())
